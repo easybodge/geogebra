@@ -86,7 +86,7 @@ public class ComponentDialog extends GPopupPanel implements Persistable, ResizeH
 		}
 
 		StandardButton negButton = new StandardButton(negTransKey, getApplication());
-		negButton.setStyleName("materialTextButton");
+		negButton.setStyleName("dialogTextButton");
 
 		FastClickHandler negBtnClickHandler = new FastClickHandler() {
 			@Override
