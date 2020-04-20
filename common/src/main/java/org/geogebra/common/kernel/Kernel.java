@@ -1,7 +1,6 @@
 package org.geogebra.common.kernel;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -961,47 +960,6 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 	}
 
 	/**
-	 * Find geos with caption ending %style=... in this kernel, and set their
-	 * visual styles to those geos in the otherKernel which have the same
-	 * %style=... caption ending; as well as set %style=defaultStyle for all
-	 * geos
-	 * 
-	 * @param otherKernel
-	 *            other kernel
-	 */
-	public void setVisualStyles(Kernel otherKernel) {
-
-		ArrayList<GeoElement> selected = getApplication().getSelectionManager()
-				.getSelectedGeos();
-
-		Collection<GeoElement> target;
-		if (selected.isEmpty()) {
-			target = cons.getGeoSetWithCasCellsConstructionOrder();
-		} else {
-			target = selected;
-		}
-		ConstructionDefaults objectDefaults = otherKernel.getConstruction()
-				.getConstructionDefaults();
-
-		for (GeoElement actual: target) {
-			boolean oldLabelVisible = actual.isLabelVisible();
-			objectDefaults.setDefaultVisualStyles(actual, false, false, false);
-			// label visibility is tricky because of labeling options: safer to keep old value
-			actual.setLabelVisible(oldLabelVisible);
-		}
-	}
-
-	/**
-	 * @param otherKernel
-	 *            other kernel
-	 */
-	public void setConstructionDefaults(Kernel otherKernel) {
-		getConstruction().getConstructionDefaults().setConstructionDefaults(
-				otherKernel.getConstruction().getConstructionDefaults());
-
-	}
-
-	/**
 	 * @param flag
 	 *            switches on or off putting scripts into XML
 	 */
@@ -1699,24 +1657,6 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 	}
 
 	/**
-	 * compares double arrays:
-	 * 
-	 * @param a
-	 *            first array
-	 * @param b
-	 *            second array
-	 * @return true if (isEqual(a[i], b[i]) == true) for all i
-	 */
-	final static boolean isEqual(double[] a, double[] b) {
-		for (int i = 0; i < a.length; ++i) {
-			if (!DoubleUtil.isEqual(a[i], b[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * @param numbers
 	 *            coefficients
 	 * @param vars
@@ -2206,9 +2146,7 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 	}
 
 	/** doesn't show 1 or -1 */
-	private final String formatCoeff(double x, StringTemplate tpl) { // TODO
-																		// make
-																		// private
+	private String formatCoeff(double x, StringTemplate tpl) {
 		if (Math.abs(x) == 1.0) {
 			if (x > 0.0) {
 				return "";
@@ -4619,9 +4557,7 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 		}
 
 		// strip off eg "sin" at start, "(" at end
-		MyDouble md = new MyDouble(this, str.substring(i, str.length() - 1));
-
-		return md;
+		return new MyDouble(this, str.substring(i, str.length() - 1));
 	}
 
 	/*----------------------------------
