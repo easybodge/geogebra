@@ -26,6 +26,14 @@ public class SafeImage {
 	}
 
 	public void process() {
+		for (ImagePreprocessor preprocessor: preprocessors) {
+			if (preprocessor.match(extension)) {
+				content = preprocessor.process(content);
+			}
+		}
+	}
 
+	public String getContent() {
+		return content;
 	}
 }

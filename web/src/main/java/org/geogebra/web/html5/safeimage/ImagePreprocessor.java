@@ -4,5 +4,5 @@ import org.geogebra.common.util.FileExtensions;
 
 public interface ImagePreprocessor {
 	boolean match(FileExtensions extension);
-	void process(String content);
+	String process(String content);
 }

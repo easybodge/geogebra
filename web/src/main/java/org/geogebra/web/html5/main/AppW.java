@@ -133,6 +133,7 @@ import org.geogebra.web.html5.kernel.commands.CommandDispatcherW;
 import org.geogebra.web.html5.main.settings.DefaultSettingsW;
 import org.geogebra.web.html5.main.settings.SettingsBuilderW;
 import org.geogebra.web.html5.move.googledrive.GoogleDriveOperation;
+import org.geogebra.web.html5.safeimage.SafeImage;
 import org.geogebra.web.html5.sound.GTimerW;
 import org.geogebra.web.html5.sound.SoundManagerW;
 import org.geogebra.web.html5.util.ArticleElement;
@@ -1021,6 +1022,7 @@ public abstract class AppW extends App implements SetLabels, HasLanguage {
 		}
 
 
+		SafeImage safeImage = new SafeImage(filename0, content);
 		FileExtensions ext = StringUtil.getFileExtension(fn);
 
 		// Ignore non image files
@@ -1039,16 +1041,10 @@ public abstract class AppW extends App implements SetLabels, HasLanguage {
 		// Log.debug("filename2 = " + filename);
 		// Log.debug("ext2 = " + ext);
 
-		if (ext.equals(FileExtensions.SVG)) {
-			// IE11/Edge needs SVG to be base64 encoded
-			String fixedContent =
-					Browser.encodeSVG(ImageManager.fixSVG(content));
-			getImageManager().addExternalImage(filename, fixedContent);
-			toLoad.put(filename, fixedContent);
-		} else {
-			getImageManager().addExternalImage(filename, content);
-			toLoad.put(filename, content);
-		}
+		safeImage.process();
+		getImageManager().addExternalImage(filename, safeImage.getContent());
+		toLoad.put(filename, safeImage.getContent());
+
 		return true;
 	}
 

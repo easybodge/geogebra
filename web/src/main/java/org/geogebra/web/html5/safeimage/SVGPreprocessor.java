@@ -18,13 +18,16 @@ public class SVGPreprocessor implements ImagePreprocessor {
 	}
 
 	@Override
-	public void process(String content) {
+	public String process(String content) {
 		this.content = content;
 		cutTag(SCRIPT_OPEN_TAG, SCRIPT_CLOSE_TAG);
 		cutTag(FOREIGN_OBJECT_OPEN_TAG,
 				FOREIGN_OBJECT_CLOSE_TAG);
-		String fixedContent =
-				Browser.encodeSVG(ImageManager.fixSVG(this.content));
+		return encodeSVG();
+	}
+
+	private String encodeSVG() {
+		return Browser.encodeSVG(ImageManager.fixSVG(this.content));
 	}
 
 	private void cutTag(String openTag, String closeTag) {
