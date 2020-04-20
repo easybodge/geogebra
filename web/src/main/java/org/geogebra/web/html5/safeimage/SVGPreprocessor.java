@@ -5,9 +5,12 @@ import org.geogebra.common.util.ImageManager;
 import org.geogebra.web.html5.Browser;
 
 public class SVGPreprocessor implements ImagePreprocessor {
-	public static final String SCRIPT_OPEN_TAG = "<script";
-	public static final String SCRIPT_CLOSE_TAG = "</script>";
-	private String result = "";
+	private static final String SCRIPT_OPEN_TAG = "<script";
+	private static final String SCRIPT_CLOSE_TAG = "</script>";
+	public static final String FOREIGN_OBJECT_OPEN_TAG = "<foreignObject";
+	public static final String FOREIGN_OBJECT_CLOSE_TAG = "</foreignObject>";
+
+	private String content = "";
 
 	@Override
 	public boolean match(FileExtensions extension) {
@@ -16,23 +19,26 @@ public class SVGPreprocessor implements ImagePreprocessor {
 
 	@Override
 	public void process(String content) {
-		result = stripFromTag(content, SCRIPT_OPEN_TAG, SCRIPT_CLOSE_TAG);
+		this.content = content;
+		cutTag(SCRIPT_OPEN_TAG, SCRIPT_CLOSE_TAG);
+		cutTag(FOREIGN_OBJECT_OPEN_TAG,
+				FOREIGN_OBJECT_CLOSE_TAG);
 		String fixedContent =
-				Browser.encodeSVG(ImageManager.fixSVG(result));
+				Browser.encodeSVG(ImageManager.fixSVG(this.content));
 	}
 
-	private String stripFromTag(String content,  String openTag, String closeTag) {
+	private void cutTag(String openTag, String closeTag) {
 		int cutFrom = content.indexOf(openTag);
 		if (cutFrom == -1) {
-			return content;
+			return;
 		}
 
 		int cutTo = content.indexOf(closeTag) + closeTag.length();
 
-		return content.substring(0, cutFrom) + content.substring(cutTo);
+		content = content.substring(0, cutFrom) + content.substring(cutTo);
 	}
 
-	public String getResult() {
-		return result;
+	public String getContent() {
+		return content;
 	}
 }
