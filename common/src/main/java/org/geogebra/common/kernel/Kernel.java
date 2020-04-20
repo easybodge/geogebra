@@ -1,6 +1,14 @@
 package org.geogebra.common.kernel;
 
-import com.himamis.retex.editor.share.util.Unicode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.TreeSet;
+
 import org.geogebra.common.GeoGebraConstants;
 import org.geogebra.common.cas.GeoGebraCAS;
 import org.geogebra.common.euclidian.EuclidianView;
@@ -88,13 +96,7 @@ import org.geogebra.common.util.ScientificFormatAdapter;
 import org.geogebra.common.util.StringUtil;
 import org.geogebra.common.util.debug.Log;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.TreeSet;
+import com.himamis.retex.editor.share.util.Unicode;
 
 /**
  * Provides methods for computation
@@ -649,12 +651,6 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 		return ret;
 	}
 
-	// This is a temporary place for abstract adapter methods which will go into
-	// factories later
-	// Arpad Fekete, 2011-12-01
-	// public abstract ColorAdapter getColorAdapter(int red, int green, int
-	// blue);
-
 	/**
 	 * If the data-param-showAnimationButton parameter for applet is false, be
 	 * sure not to show the animation button. In this case the value of
@@ -974,94 +970,24 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 	 *            other kernel
 	 */
 	public void setVisualStyles(Kernel otherKernel) {
-		TreeSet<GeoElement> okts = otherKernel.getConstruction()
-				.getGeoSetWithCasCellsConstructionOrder();
+
 		ArrayList<GeoElement> selected = getApplication().getSelectionManager()
 				.getSelectedGeos();
 
-		// maybe it's efficient to pre-filter this set to only contain
-		// elements that have "%style=" styling
-
-		Iterator<GeoElement> okit = okts.iterator();
-		GeoElement okactual;
-		String okcapt;
-		int okpos;
-		while (okit.hasNext()) {
-			okactual = okit.next();
-			okcapt = okactual.getCaptionSimple();
-			if (okcapt == null) {
-				okpos = -1;
-			} else {
-				okpos = okcapt.indexOf("%style=");
-			}
-			if (okpos < 0) {
-				// not having "%style=" setting, can be removed
-				// lucky that iterator has this method
-				okit.remove();
-			}
-		}
-
-		// okts is ready, now to the main loop
-
-		Iterator<GeoElement> it;
+		Collection<GeoElement> target;
 		if (selected.isEmpty()) {
-			it = cons.getGeoSetWithCasCellsConstructionOrder().iterator();
+			target = cons.getGeoSetWithCasCellsConstructionOrder();
 		} else {
-			it = selected.iterator();
+			target = selected;
 		}
+		ConstructionDefaults objectDefaults = otherKernel.getConstruction()
+				.getConstructionDefaults();
 
-		GeoElement actual;
-		String capt;
-		int pos;
-		while (it.hasNext()) {
-			actual = it.next();
-
-			// at first, apply default styles!
-			// these are applied anyway, caption is not needed;
-			// however, Geo type is needed!
-			GeoClass gc = actual.getGeoClassType();
-
-			okit = okts.iterator();
-			while (okit.hasNext()) {
-				okactual = okit.next();
-				okcapt = okactual.getCaptionSimple();
-				// as okts is pre-filtered, okcapt is not null
-				okpos = okcapt.indexOf("%style=defaultStyle");
-				if (okpos > -1 && okactual.getGeoClassType() == gc) {
-					// match!
-					actual.setVisualStyle(okactual);
-				}
-			}
-			// now, okit, okactual, okcapt, okpos can be redefined...
-
-			capt = actual.getCaptionSimple();
-			if (capt == null) {
-				pos = -1;
-			} else {
-				pos = capt.indexOf("%style=");
-			}
-			if (pos > -1) {
-				// capt will not be needed until the next iteration
-				capt = capt.substring(pos);
-				// now, it's time to search for geos in otherKernel,
-				// whether any of them has the same style ending
-				okit = okts.iterator();
-				while (okit.hasNext()) {
-					okactual = okit.next();
-					okcapt = okactual.getCaptionSimple();
-					// as okts is pre-filtered, okcapt is not null
-					okpos = okcapt.indexOf("%style=");
-					// as okts is pre-filtered, okpos is not -1
-					// although we could double-check, it's not important
-
-					// okcapt will not be needed until the next iteration
-					okcapt = okcapt.substring(okpos);
-					if (capt.equals(okcapt)) {
-						// match!
-						actual.setVisualStyle(okactual);
-					}
-				}
-			}
+		for (GeoElement actual: target) {
+			boolean oldLabelVisible = actual.isLabelVisible();
+			objectDefaults.setDefaultVisualStyles(actual, false, false, false);
+			// label visibility is tricky because of labeling options: safer to keep old value
+			actual.setLabelVisible(oldLabelVisible);
 		}
 	}
 
@@ -1987,9 +1913,6 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 		}
 		return temp;
 	}
-
-	// private final StringBuilder sbBuildImplicitVarPart = new
-	// StringBuilder(80);
 
 	/**
 	 * 
