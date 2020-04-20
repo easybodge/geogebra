@@ -1,15 +1,15 @@
 package org.geogebra.web.html5.safeimage;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.geogebra.common.util.FileExtensions;
 import org.geogebra.common.util.ImageManager;
 import org.geogebra.web.html5.Browser;
 
 public class SVGPreprocessor implements ImagePreprocessor {
-	private static final String SCRIPT_OPEN_TAG = "<script";
-	private static final String SCRIPT_CLOSE_TAG = "</script>";
-	public static final String FOREIGN_OBJECT_OPEN_TAG = "<foreignObject";
-	public static final String FOREIGN_OBJECT_CLOSE_TAG = "</foreignObject>";
-
+	private static final List<String> tagsToCut = Arrays.asList("script",
+			"foreignObject");
 	private String content = "";
 
 	@Override
@@ -20,22 +20,27 @@ public class SVGPreprocessor implements ImagePreprocessor {
 	@Override
 	public String process(String content) {
 		this.content = content;
-		cutTag(SCRIPT_OPEN_TAG, SCRIPT_CLOSE_TAG);
-		cutTag(FOREIGN_OBJECT_OPEN_TAG,
-				FOREIGN_OBJECT_CLOSE_TAG);
+		cutTags();
 		return encodeSVG();
+	}
+
+	private void cutTags() {
+		for (String tag: tagsToCut) {
+			cutTag(tag);
+		}
 	}
 
 	private String encodeSVG() {
 		return Browser.encodeSVG(ImageManager.fixSVG(this.content));
 	}
 
-	private void cutTag(String openTag, String closeTag) {
-		int cutFrom = content.indexOf(openTag);
+	private void cutTag(String tag) {
+		int cutFrom = content.indexOf("<" + tag);
 		if (cutFrom == -1) {
 			return;
 		}
 
+		String closeTag = "</" + tag + ">";
 		int cutTo = content.indexOf(closeTag) + closeTag.length();
 
 		content = content.substring(0, cutFrom) + content.substring(cutTo);
