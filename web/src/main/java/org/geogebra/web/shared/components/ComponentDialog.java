@@ -105,7 +105,7 @@ public class ComponentDialog extends GPopupPanel implements Persistable, ResizeH
 		}
 
 		StandardButton posButton = new StandardButton(posTransKey, getApplication());
-		posButton.setStyleName("materialContainedButton");
+		posButton.setStyleName("dialogContainedButton");
 
 		FastClickHandler posBtnClickHandler = new FastClickHandler() {
 			@Override

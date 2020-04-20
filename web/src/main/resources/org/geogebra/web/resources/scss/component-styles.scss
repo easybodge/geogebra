@@ -372,4 +372,11 @@
             background-color: $selected-menuitem-background;
         }
     }
+
+    /** Material CONTAINED BUTTON used for dialogs positive action **/
+    .dialogContainedButton {
+        @extend .materialContainedButton;
+
+        box-shadow: none;
+    }
 }
