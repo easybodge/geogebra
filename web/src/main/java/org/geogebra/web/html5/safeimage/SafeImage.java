@@ -13,12 +13,25 @@ public class SafeImage {
 	private List<ImagePreprocessor> preprocessors;
 
 	public SafeImage(String fileName, String content) {
-		this.fileName = fileName;
 		this.extension = StringUtil.getFileExtension(fileName);
 		this.content = content;
+		this.fileName  = processFileName(fileName);
 		preprocessors = new ArrayList<>();
 		preprocessors.add(new SVGPreprocessor());
 
+	}
+
+	/**
+	 * Bug in old versions (PNG saved with wrong extension)
+	 * Change BMP, TIFF, TIF -> PNG
+	 */
+	private String processFileName(String fileName) {
+		if (extension.isAllowedImage()) {
+			return fileName;
+		}
+
+		return StringUtil.changeFileExtension(fileName,
+				FileExtensions.PNG);
 	}
 
 	public boolean isImage() {
@@ -31,6 +44,10 @@ public class SafeImage {
 				content = preprocessor.process(content);
 			}
 		}
+	}
+
+	public String getFileName() {
+		return fileName;
 	}
 
 	public String getContent() {

@@ -77,7 +77,6 @@ import org.geogebra.common.plugin.ScriptManager;
 import org.geogebra.common.plugin.SensorLogger;
 import org.geogebra.common.sound.SoundManager;
 import org.geogebra.common.util.AsyncOperation;
-import org.geogebra.common.util.FileExtensions;
 import org.geogebra.common.util.GTimer;
 import org.geogebra.common.util.GTimerListener;
 import org.geogebra.common.util.ImageManager;
@@ -1021,29 +1020,16 @@ public abstract class AppW extends App implements SetLabels, HasLanguage {
 			return false; // Ignore thumbnail
 		}
 
-
 		SafeImage safeImage = new SafeImage(filename0, content);
-		FileExtensions ext = StringUtil.getFileExtension(fn);
 
 		// Ignore non image files
-		if (!ext.isImage()) {
+		if (!safeImage.isImage()) {
 			return false;
 		}
-		String filename = filename0;
-		// bug in old versions (PNG saved with wrong extension)
-		// change BMP, TIFF, TIF -> PNG
-		if (!ext.isAllowedImage()) {
-			filename = StringUtil.changeFileExtension(filename,
-					FileExtensions.PNG);
-		}
-
-		// for file names e.g. /geogebra/main/nav_play.png in GeoButtons
-		// Log.debug("filename2 = " + filename);
-		// Log.debug("ext2 = " + ext);
 
 		safeImage.process();
-		getImageManager().addExternalImage(filename, safeImage.getContent());
-		toLoad.put(filename, safeImage.getContent());
+		getImageManager().addExternalImage(safeImage.getFileName(), safeImage.getContent());
+		toLoad.put(safeImage.getFileName(), safeImage.getContent());
 
 		return true;
 	}
