@@ -1020,6 +1020,7 @@ public abstract class AppW extends App implements SetLabels, HasLanguage {
 			return false; // Ignore thumbnail
 		}
 
+
 		FileExtensions ext = StringUtil.getFileExtension(fn);
 
 		// Ignore non image files
